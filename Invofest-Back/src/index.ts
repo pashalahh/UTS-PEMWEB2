@@ -9,7 +9,7 @@ const app = express();
 const port = 3000;
 
 app.use(cors({
-  origin: "https://uts-pemweb-2-7qga.vercel.app/", 
+  origin: "https://uts-pemweb-2-7qga.vercel.app", 
   credentials: true
 }));
 app.use(express.json());
