@@ -105,7 +105,7 @@ export default function PembicaraIndex() {
         </div>
         <Link 
           to="/dashboard/pembicara/create" 
-          className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-600 transition text-sm font-semibold shadow cursor-pointer"
+          className="px-4 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold shadow cursor-pointer"
         >
           Tambah Pembicara
         </Link>

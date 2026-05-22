@@ -136,7 +136,7 @@ export default function EventIndex() {
         </div>
         <Link 
           to="/dashboard/event/create" 
-          className="px-4 py-2 bg-pink-800 text-white rounded-lg hover:bg-pink-700 transition text-sm font-semibold shadow cursor-pointer"
+          className="px-4 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold shadow cursor-pointer"
         >
           Tambah Event Baru
         </Link>
