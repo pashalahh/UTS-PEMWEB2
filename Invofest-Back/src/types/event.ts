@@ -1,5 +1,5 @@
-import { Category } from "./category";
-import { Pembicara } from "./pembicara";
+import { Category } from "./category.js";
+import { Pembicara } from "./pembicara.js";
 
 export interface Event {
   id: number;

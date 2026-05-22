@@ -1,9 +1,9 @@
 import express from "express";
 import cors from "cors";
 
-import eventRoute from "./routes/eventRoute";
-import categoryRoute from "./routes/categoryRoute";
-import pembicaraRoute from "./routes/pembicaraRoute";
+import eventRoute from "./routes/eventRoute.js";
+import categoryRoute from "./routes/categoryRoute.js";
+import pembicaraRoute from "./routes/pembicaraRoute.js";
 
 const app = express();
 const port = 3000;

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Pembicara } from "../types/pembicara";
+import { Pembicara } from "../types/pembicara.js";
 
 let pembicara: Pembicara[] = [];
 
