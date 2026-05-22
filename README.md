@@ -2,6 +2,10 @@
 
 Aplikasi web *Full-Stack* manajemen kegiatan **Invofest** yang dibangun menggunakan arsitektur Monorepo. Aplikasi ini mencakup pengelolaan data Dashboard, Kategori, Event, Pembicara, hingga Biodata secara dinamis dan terintegrasi dengan database cloud.
 
+Login Bagian Dashboard
+Email : 24090070
+Password : 24090070
+
 ---
 
 ## 🔗 Tautan Penting
