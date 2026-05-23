@@ -8,7 +8,7 @@ const pembicara : Pembicara[] = [];
 export const getPembicara = async (req: Request, res: Response) => {
     try {
         const dataPembicara = await prisma.pembicara.findMany();
-        res.json(pembicara);
+        res.json(dataPembicara);
     } catch (error) {
         res.status(500).json({ message: "Gagal mengambil data pembicara", error });
     }

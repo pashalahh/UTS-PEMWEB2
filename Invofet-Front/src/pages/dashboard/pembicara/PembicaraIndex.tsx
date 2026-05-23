@@ -7,7 +7,7 @@ interface Pembicara {
   id: number | string; 
   name: string;        
   role: string;        
-  foto: string;        
+  image: string;        
 }
 
 export default function PembicaraIndex() {
@@ -40,7 +40,7 @@ export default function PembicaraIndex() {
     setEditingId(pembicara.id);
     setEditName(pembicara.name);
     setEditRole(pembicara.role);
-    setEditFoto(pembicara.foto);
+    setEditFoto(pembicara.image);
   };
 
   const cancelEdit = () => {
@@ -62,13 +62,13 @@ export default function PembicaraIndex() {
       await api.put(`/pembicara/${id}`, {
         name: editName,
         role: editRole,
-        foto: editFoto,
+        image: editFoto,
       });
 
       // Update state lokal agar UI React langsung sinkron secara reaktif
       setPembicaraList(
         pembicaraList.map((p) =>
-          p.id === id ? { ...p, name: editName, role: editRole, foto: editFoto } : p
+          p.id === id ? { ...p, name: editName, role: editRole, image: editFoto } : p
         )
       );
 
@@ -188,7 +188,7 @@ export default function PembicaraIndex() {
                     <div className="flex flex-col items-center text-center mb-4">
                       {/* Tampilan Foto dengan Fallback Gambar Rusak */}
                       <img 
-                        src={pembicara.foto} 
+                        src={pembicara.image} 
                         alt={pembicara.name}
                         onError={(e) => {
                           // Jika link gambar dari Supabase mati/salah, ganti otomatis ke gambar default
