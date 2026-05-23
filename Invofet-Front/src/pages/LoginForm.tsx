@@ -42,7 +42,7 @@ export default function LoginForm() {
         <InputText 
           label="Email" 
           nama="email"
-          register={register("email")}
+          register={register}
           error={errors.email?.message}
           placeholder="contoh@student.ac.id"
         />
@@ -50,7 +50,7 @@ export default function LoginForm() {
         <InputPassword 
           label="Password"
           nama="password"
-          register={register("password")} 
+          register={register} 
           error={errors.password?.message}
           placeholder="Masukkan password Anda"
         />

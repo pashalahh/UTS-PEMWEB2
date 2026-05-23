@@ -33,7 +33,7 @@ export default function RegisterEventForm() {
         <InputText
           label="Nama Lengkap" 
           nama="nama" 
-          register={register("nama")} 
+          register={register} 
           error={errors.nama?.message} 
           placeholder="Masukkan nama lengkap"
         /> 
@@ -41,7 +41,7 @@ export default function RegisterEventForm() {
         <InputText
           label="Email Aktif" 
           nama="email" 
-          register={register("email")} 
+          register={register} 
           error={errors.email?.message} 
           placeholder="nama@email.com"
         /> 
@@ -49,7 +49,7 @@ export default function RegisterEventForm() {
         <Select 
           label="Pilih Jenis Event" 
           nama="event" 
-          register={register("event")} 
+          register={register} 
           options={[ 
             { label: "IT Competition (Lomba)", value: "comp" }, 
             { label: "IT Seminar Nasional", value: "semi" }, 
@@ -62,7 +62,7 @@ export default function RegisterEventForm() {
         <Textarea 
           label="Biodata Singkat Peserta" 
           nama="bio" 
-          register={register("bio")} 
+          register={register} 
           error={errors.bio?.message} 
           placeholder="Jelaskan instansi atau motivasi singkat mengikuti event ini..."
         /> 

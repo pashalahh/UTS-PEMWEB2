@@ -35,7 +35,7 @@ export default function RegisterForm() {
         <InputText 
           label="Nama Lengkap" 
           nama="nama"
-          register={register("nama")}
+          register={register}
           error={errors.nama?.message}
           placeholder="Masukkan nama lengkap Anda"
         />
@@ -43,7 +43,7 @@ export default function RegisterForm() {
         <InputText 
           label="Email" 
           nama="email"
-          register={register("email")}
+          register={register}
           error={errors.email?.message}
           placeholder="alamat@email.com"
         />
@@ -51,7 +51,7 @@ export default function RegisterForm() {
         <InputPassword 
           label="Password"
           nama="password"
-          register={register("password")}
+          register={register}
           error={errors.password?.message}
           placeholder="Buat password aman"
         />
@@ -59,7 +59,7 @@ export default function RegisterForm() {
         <InputPassword 
           label="Konfirmasi Password"
           nama="password_confirm"
-          register={register("password_confirm")}
+          register={register}
           error={errors.password_confirm?.message}
           placeholder="Ulangi password di atas"
         />
