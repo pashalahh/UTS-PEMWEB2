@@ -1,35 +1,38 @@
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 
 interface CardProps {
-    children: ReactNode;
-    className?: string;
-    image?: string; 
+  children: ReactNode;
+  className?: string;
+  image?: string; 
 }
 
 export const Card = ({ children, className = "", image }: CardProps) => {
-    return (
-        <div
-        className={`bg-white shadow-lg rounded-2rem overflow-hidden border-l-12px border-pink-700 
-            flex flex-col min-h-100 w-full max-w-87.5 mx-auto 
-            transition-all duration-300 hover:shadow-2xl ${className}`}>
-        {image && image.trim() !== "" && (
-            <div className="w-full h-full object-cover object-center">
-                <img 
-                    src={image} 
-                    alt="Card Header" 
-                    className="w-full h-full object-cover" 
-                />
-            </div>
-        )}
+  return (
+    <div      
+    className={`bg-white shadow-md rounded-xl overflow-hidden border-l-8 border-pink-700 
+        flex flex-col w-full max-w-sm mx-auto min-h-95
+        transition-all duration-300 hover:shadow-xl ${className}`}
+    >
+      {image && image.trim() !== "" && (
 
-            <div className="p-6 flex-1 flex flex-col">
-                {children}
-            </div>
-            
+        <div className="w-full h-48 bg-gray-100 shrink-0 border-b border-gray-100">
+          <img 
+            src={image} 
+            alt="Card Header" 
+            className="w-full h-full object-cover" 
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "https://placeholder.co/400x250?text=No+Image";
+            }}
+          />
         </div>
+      )}
+
+      <div className="p-5 flex-1 flex flex-col justify-between gap-3 text-gray-700">
+        {children}
+      </div>
         
-    );
+    </div>
+  );
 };
 
-
-
+export default Card;

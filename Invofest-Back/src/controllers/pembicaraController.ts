@@ -1,65 +1,90 @@
 import { Request, Response } from "express";
+import { prisma } from "../lib/db.js";
 import { Pembicara } from "../types/pembicara.js";
 
-let pembicara: Pembicara[] = [];
+const pembicara : Pembicara[] = [];
 
-// 1. Menampilkan data pembicara
-export const getPembicara = (req: Request, res: Response) => {
-    res.json(pembicara);
+// 1. Menampilkan data pembicara dari Supabase
+export const getPembicara = async (req: Request, res: Response) => {
+    try {
+        const dataPembicara = await prisma.pembicara.findMany();
+        res.json(pembicara);
+    } catch (error) {
+        res.status(500).json({ message: "Gagal mengambil data pembicara", error });
+    }
 };
 
-// 2. Menyimpan data pembicara
-export const createPembicara = (req: Request, res: Response) => {
-    const { name, role, foto } = req.body;
+// 2. Menyimpan data pembicara ke Supabase
+export const createPembicara = async (req: Request, res: Response) => {
+    const { name, role, image } = req.body;
         
-            //  BUat validasi sederhana, jika name belum diisi
-            if (!name || !role || !foto) {
-                return res.status(500).json({ message: "Nama, role dan foto pembicara harus diisi" });
-            }
+    // Validasi sederhana
+    if (!name || !role || !image) {
+        return res.status(400).json({ message: "Nama, role dan image pembicara harus diisi" });
+    }
         
-            // Jika validasi berhasil
-            const newPembicara: Pembicara = {
-                id: Date.now(), // Menggunakan timestamp sebagai id unik
+    try {
+        // Simpan permanen ke Supabase lewat Prisma
+        const newPembicara = await prisma.pembicara.create({
+            data: {
                 name: name,
                 role: role,
-                foto: foto
-            };
-        
-            // Jika sudah disusun, simpan ke array pembicara atau databse
-            pembicara.push(newPembicara);
-        
-            // Jika data berhasil disimpan
-            res.status(200).json({message: "Data berhasil disimpan", pembicara: newPembicara});
+                image: image
+            }
+        });
+    
+        res.status(200).json({ message: "Data berhasil disimpan", pembicara: newPembicara });
+    } catch (error) {
+        res.status(500).json({ message: "Gagal menyimpan data ke database", error });
+    }
 };
 
 // 3. Menampilkan data pembicara berdasarkan id
-export const showPembicaraById = (req: Request, res: Response) => {
+export const showPembicaraById = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
-    const pembicaraItem = pembicara.find((e) => e.id === id);
-    if (!pembicaraItem) {
-        return res.status(404).json({
-            message: "Pembicara tidak ditemukan",
+    try {
+        const pembicaraItem = await prisma.pembicara.findUnique({
+            where: { id: id }
         });
+
+        if (!pembicaraItem) {
+            return res.status(404).json({ message: "Pembicara tidak ditemukan" });
+        }
+        res.json(pembicaraItem);
+    } catch (error) {
+        res.status(500).json({ message: "Gagal mengambil data", error });
     }
-    res.json(pembicaraItem);
 };
 
 // 4. Mengupdate data pembicara berdasarkan id
-export const updatePembicaraById = (req: Request, res: Response) => {
+export const updatePembicaraById = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
-    const pembicaraItem = pembicara.find((e) => e.id === id);
-    if (!pembicaraItem) {
-        return res.status(404).json({ message: "Pembicara tidak ditemukan" });
+    const { name, role, image } = req.body;
+
+    try {
+        const updatedPembicara = await prisma.pembicara.update({
+            where: { id: id },
+            data: {
+                name: name ?? undefined,
+                role: role ?? undefined,
+                image: image ?? undefined
+            }
+        });
+        res.json(updatedPembicara);
+    } catch (error) {
+        res.status(404).json({ message: "Pembicara tidak ditemukan atau gagal diupdate" });
     }
-    pembicaraItem.name = req.body.name ?? pembicaraItem.name;
-    pembicaraItem.role = req.body.role ?? pembicaraItem.role;
-    pembicaraItem.foto = req.body.foto ?? pembicaraItem.foto;
-    res.json(pembicaraItem);
 };
 
 // 5. Menghapus data pembicara berdasarkan id
-export const deletePembicaraById = (req: Request, res: Response) => {
+export const deletePembicaraById = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
-    pembicara = pembicara.filter((e) => e.id !== id);
-    res.json({ message: "Pembicara berhasil dihapus" });
+    try {
+        await prisma.pembicara.delete({
+            where: { id: id }
+        });
+        res.json({ message: "Pembicara berhasil dihapus" });
+    } catch (error) {
+        res.status(404).json({ message: "Pembicara tidak ditemukan atau gagal dihapus" });
+    }
 };

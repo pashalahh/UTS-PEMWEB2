@@ -1,9 +1,10 @@
-import { Home, Users, Trophy, Monitor, Mic, UserCircle } from 'lucide-react'; // Import Ikon 
+import { useState } from 'react';
+import { Home, Users, Trophy, Monitor, Mic, UserCircle, Menu, X } from 'lucide-react'; 
 import { NavLink } from 'react-router-dom';
  
 export const Header = () => { 
-  // Simulasi penentuan halaman aktif (biasanya menggunakan Library Router) 
-  const currentPath = "/"; // Ganti dengan logika penentuan path saat ini
+  // State untuk mengontrol buka/tutup menu navigasi di mobile
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
  
   const menuItems = [ 
     { label: 'Beranda', href: '/', icon: <Home size={18} /> }, 
@@ -13,50 +14,90 @@ export const Header = () => {
     { label: 'Talkshow', href: '/talkshow', icon: <Mic size={18} /> }, 
   ]; 
 
-  const activeStyle = "text-pink-800 "; 
-  const defaultStyle = "text-slate-600 hover:text-pink-800"; 
+  const activeStyle = "text-pink-800 border-b-2 border-pink-800 bg-pink-50/50 md:bg-transparent"; 
+  const defaultStyle = "text-slate-600 hover:text-pink-800 hover:bg-gray-50 md:hover:bg-transparent"; 
  
   return ( 
-    <header className=" bg-white shadow-sm px-6 py-2"> 
+    <header className="bg-white shadow-sm px-4 sm:px-6 py-3 sticky top-0 z-50"> 
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <div className="flex items-center">
+        
+        {/* LOGO UTAMA */}
+        <div className="flex items-center shrink-0">
           <img 
-            src="https://www.invofest-harkatnegeri.com/assets/nav-logo.png" // Pastikan path logo benar
+            src="https://www.invofest-harkatnegeri.com/assets/nav-logo.png" 
             alt="Invofest Logo" 
-            className="h-10 w-auto object-contain"
+            className="h-9 w-auto object-contain"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1 md:gap-4"> 
-            {menuItems.map((item) => ( 
-              <NavLink            
-                to={item.href}  
-                className={({ isActive }) => 
-                `flex items-center gap-2 px-4 py-2 font-medium
-                transition-all duration-200
-                ${isActive ? activeStyle : defaultStyle}`} >
 
-                {/* Render Ikon jika ada */} 
-                {item.icon && <span className="w-5 h-5">{item.icon}</span>} 
+        {/* BUTTON MOBILE TOGGLE */}
+        <div className="flex items-center gap-2 md:hidden">
+          {/* Tombol Profile khusus mobile di samping hamburger */}
+          <NavLink to="/login" className="p-2 text-slate-600 hover:text-pink-800">
+            <UserCircle size={22} />
+          </NavLink>
+          
+          <button
+            type="button"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2 text-slate-600 hover:text-pink-800 hover:bg-gray-100 rounded-lg focus:outline-none cursor-pointer"
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
 
-                <span>{item.label}</span> 
-              </NavLink> 
-            ))} 
+        {/*  NAV MENU DESKTOP */}
+        <nav className="hidden md:flex items-center gap-1 lg:gap-2"> 
+          {menuItems.map((item) => ( 
+            <NavLink            
+              key={item.href}
+              to={item.href}  
+              className={({ isActive }) => 
+                `flex items-center gap-2 px-3 py-2 font-medium text-sm transition-all duration-150
+                ${isActive ? activeStyle : defaultStyle}`
+              }
+            >
+              {item.icon && <span className="flex items-center justify-center shrink-0">{item.icon}</span>} 
+              <span>{item.label}</span> 
+            </NavLink> 
+          ))} 
 
-              <NavLink            
-                to="/login"  
-                className={({ isActive }) => 
-                `flex items-center gap-2 px-4 py-2 font-medium
-                transition-all duration-200
-                ${isActive ? activeStyle : defaultStyle}`} >
+          {/* Tombol Login Desktop */}
+          <NavLink            
+            to="/login"  
+            className={({ isActive }) => 
+              `flex items-center gap-2 px-3 py-2 font-medium text-sm transition-all duration-150 ml-2
+              ${isActive ? "text-pink-800" : "text-slate-600 hover:text-pink-800"}`
+            }
+          > 
+            <UserCircle size={20} />
+            <span>Masuk</span>
+          </NavLink>
+        </nav> 
 
-                <span>
-                  <UserCircle size={18} />
-                </span> 
-              </NavLink>
-          </div> 
-        </div> 
       </div>
+
+      {/* DROPDOWN MENU MOBILE  */}
+      {isMenuOpen && (
+        <div className="md:hidden mt-3 pt-2 border-t border-gray-100 animate-fadeIn">
+          <nav className="flex flex-col gap-1">
+            {menuItems.map((item) => (
+              <NavLink
+                key={item.href}
+                to={item.href}
+                onClick={() => setIsMenuOpen(false)} // Otomatis tutup menu setelah link diklik
+                className={({ isActive }) => 
+                  `flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl transition-all
+                  ${isActive ? activeStyle : defaultStyle}`
+                }
+              >
+                {item.icon && <span className="text-slate-500">{item.icon}</span>}
+                <span>{item.label}</span>
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+      )}
     </header> 
   ); 
 }; 

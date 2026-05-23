@@ -1,242 +1,224 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router"; 
 import api from "../../../api/axiosInstance";
 
-interface PembicaraData {
-  id: number;
-  nama: string; 
-  name?: string; 
-  role: string;
-  image?: string; 
-  foto?: string; 
+
+interface Pembicara {
+  id: number | string; 
+  name: string;        
+  role: string;        
+  foto: string;        
 }
 
 export default function PembicaraIndex() {
-  const [speakers, setSpeakers] = useState<PembicaraData[]>([]);
+  const [pembicaraList, setPembicaraList] = useState<Pembicara[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // State untuk melacak ID pembicara yang sedang diedit di layar
-  const [editingId, setEditingId] = useState<number | null>(null);
+  // State untuk manajemen inline edit
+  const [editingId, setEditingId] = useState<number | string | null>(null);
+  const [editName, setEditName] = useState<string>("");
+  const [editRole, setEditRole] = useState<string>("");
+  const [editFoto, setEditFoto] = useState<string>("");
+  const [saveLoading, setSaveLoading] = useState<boolean>(false);
 
-  // State temporary untuk form input edit pembicara
-  const [editForm, setEditForm] = useState({
-    nama: "",
-    role: "",
-    image: ""
-  });
-
-  // Ambal data pembicara dari API backend
+  // Mengambil data dari endpoint /pembicara
   useEffect(() => {
     api.get("/pembicara")
-      .then((res) => {
-        setSpeakers(res.data);
+      .then((response) => {
+        setPembicaraList(response.data);
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Gagal mengambil data pembicara:", err);
+        console.error("Error fetching pembicara:", err);
         setError("Gagal memuat data pembicara.");
         setLoading(false);
       });
   }, []);
 
-  // Pemicu saat tombol Edit diklik (Mengubah Card menjadi Form inline)
-  const startEdit = (speaker: PembicaraData) => {
-    setEditingId(speaker.id);
-    setEditForm({
-      nama: speaker.nama || speaker.name || "",
-      role: speaker.role || "",
-      image: speaker.image || speaker.foto || ""
-    });
+  const startEdit = (pembicara: Pembicara) => {
+    setEditingId(pembicara.id);
+    setEditName(pembicara.name);
+    setEditRole(pembicara.role);
+    setEditFoto(pembicara.foto);
   };
 
-  // Batalkan proses edit
   const cancelEdit = () => {
     setEditingId(null);
+    setEditName("");
+    setEditRole("");
+    setEditFoto("");
   };
 
-  // Eksekusi submit perubahan ke backend dengan payload ganda (antisipasi mismatch key)
-  const handleUpdateSubmit = async (id: number) => {
-    if (!editForm.nama.trim() || !editForm.role.trim() || !editForm.image.trim()) {
-      return alert("Semua field pembicara wajib diisi!");
+  // Menyimpan update (PUT /pembicara/:id)
+  const handleSaveEdit = async (id: number | string) => {
+    if (!editName.trim() || !editRole.trim() || !editFoto.trim()) {
+      alert("Semua data pembicara (Nama, Role, Foto) harus diisi!");
+      return;
     }
 
+    setSaveLoading(true);
     try {
-      const payload = {
-        nama: editForm.nama,
-        name: editForm.nama, // Safe fallback
-        role: editForm.role,
-        image: editForm.image,
-        foto: editForm.image // Safe fallback
-      };
+      await api.put(`/pembicara/${id}`, {
+        name: editName,
+        role: editRole,
+        foto: editFoto,
+      });
 
-      await api.put(`/pembicara/${id}`, payload);
-      alert("Data pembicara berhasil diperbarui!");
-      
+      // Update state lokal agar UI React langsung sinkron secara reaktif
+      setPembicaraList(
+        pembicaraList.map((p) =>
+          p.id === id ? { ...p, name: editName, role: editRole, foto: editFoto } : p
+        )
+      );
+
       setEditingId(null);
-      window.location.reload(); // Sinkronisasi ulang data state ter-update dari DB
+      alert("Data pembicara berhasil diperbarui!");
     } catch (err) {
-      console.error("Gagal memperbarui pembicara:", err);
-      alert("Terjadi kesalahan server saat memperbarui data pembicara.");
+      console.error("Gagal mengupdate pembicara:", err);
+      alert("Gagal menyimpan perubahan ke server.");
+    } finally {
+      setSaveLoading(false);
     }
   };
 
-  // Eksekusi hapus data pembicara
-  const handleDelete = async (id: number) => {
-    if (confirm("Apakah kamu yakin ingin menghapus data pembicara ini?")) {
+  // Menghapus data (DELETE /pembicara/:id)
+  const handleDelete = async (id: number | string) => {
+    if (confirm("Apakah kamu yakin ingin menghapus pembicara ini?")) {
       try {
         await api.delete(`/pembicara/${id}`);
-        setSpeakers(speakers.filter((s) => s.id !== id));
+        setPembicaraList(pembicaraList.filter((p) => p.id !== id));
         alert("Pembicara berhasil dihapus!");
       } catch (err) {
         console.error("Gagal menghapus pembicara:", err);
-        alert("Gagal menghapus data pembicara.");
+        alert("Gagal menghapus pembicara dari server.");
       }
     }
   };
 
   return (
     <div className="p-6">
-      {/* Header Panel */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 gap-2">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Pembicara</h1>
-          <p className="text-gray-500 text-sm">Manajemen data pembicara acara Invofest</p>
+          <p className="text-gray-600 text-sm">Kelola daftar pembicara acara Invofest!</p>
         </div>
+        
         <Link 
           to="/dashboard/pembicara/create" 
-          className="px-4 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold shadow cursor-pointer"
+          className="p-2 bg-green-800 text-white rounded hover:bg-green-700 transition cursor-pointer text-sm font-semibold shadow"
         >
           Tambah Pembicara
         </Link>
       </div>
 
-      <hr className="mb-8 border-gray-200" />
+      <hr className="mb-6 border-gray-200" />
 
-      {loading && <p className="text-center text-gray-500 animate-pulse py-4">Memuat data pembicara...</p>}
+      {loading && <p className="text-center text-gray-500 animate-pulse">Sedang memuat data...</p>}
       {error && <div className="p-4 mb-4 text-sm text-red-800 bg-red-100 rounded-lg">{error}</div>}
 
-      {/* Grid List Pembicara */}
       {!loading && !error && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {speakers.length === 0 ? (
-            <p className="text-gray-500 col-span-full text-center py-4">Belum ada data pembicara.</p>
-          ) : (
-            speakers.map((speaker) => {
-              const isEditing = editingId === speaker.id;
-              // Mengambil url gambar dari properti image atau foto yang disediakan backend
-              const imageUrl = speaker.image || speaker.foto; 
-              // Mengambil teks nama
-              const speakerName = speaker.nama || speaker.name || "Tanpa Nama";
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {pembicaraList.map((pembicara) => {
+            const isEditing = editingId === pembicara.id;
 
-              return (
-                <div 
-                  key={speaker.id} 
-                  className={`bg-white p-6 rounded-3xl shadow-lg border transition duration-300 ${
-                    isEditing ? "border-pink-500 ring-2 ring-pink-100" : "border-gray-100"
-                  }`}
-                >
-                  {isEditing ? (
-                    /* 📝 WUJUD INLINE FORM EDIT DI DALAM CARD PEMBICARA */
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-bold text-pink-800 mb-2">Edit Data Pembicara</h4>
-                      
-                      <div>
-                        <label className="text-[11px] font-bold text-gray-500 block mb-0.5">Nama Lengkap</label>
-                        <input 
-                          type="text"
-                          value={editForm.nama}
-                          onChange={(e) => setEditForm({ ...editForm, nama: e.target.value })}
-                          className="w-full border p-1.5 text-xs rounded-md focus:outline-pink-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[11px] font-bold text-gray-500 block mb-0.5">Role / Profesi</label>
-                        <input 
-                          type="text"
-                          value={editForm.role}
-                          onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                          className="w-full border p-1.5 text-xs rounded-md focus:outline-pink-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[11px] font-bold text-gray-500 block mb-0.5">URL Link Foto</label>
-                        <input 
-                          type="text"
-                          value={editForm.image}
-                          onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
-                          className="w-full border p-1.5 text-xs rounded-md focus:outline-pink-500"
-                        />
-                      </div>
-
-                      {/* Aksi Simpan / Batal Inline */}
-                      <div className="flex gap-2 pt-2">
-                        <button
-                          onClick={() => handleUpdateSubmit(speaker.id)}
-                          className="flex-1 text-xs bg-green-700 text-white font-bold py-1.5 rounded-md hover:bg-green-600 cursor-pointer"
-                        >
-                          Simpan
-                        </button>
-                        <button
-                          onClick={cancelEdit}
-                          className="flex-1 text-xs bg-gray-500 text-white font-bold py-1.5 rounded-md hover:bg-gray-400 cursor-pointer"
-                        >
-                          Batal
-                        </button>
-                      </div>
+            return (
+              <div 
+                key={pembicara.id} 
+                className={`bg-white p-5 rounded-xl shadow-md border flex flex-col justify-between transition duration-200 ${
+                  isEditing ? "border-pink-500 ring-2 ring-pink-200" : "border-gray-100 hover:shadow-lg"
+                }`}
+              >
+                {/* --- KONDISI JIKA SEDANG DIEDIT --- */}
+                {isEditing ? (
+                  <div className="space-y-3 w-full">
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 block mb-1">Nama Pembicara:</label>
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-pink-500 text-gray-800"
+                        disabled={saveLoading}
+                      />
                     </div>
-                  ) : (
-                    /* 👤 WUJUD TAMPILAN VIEW CARD PEMBICARA BIASA */
-                    <div className="flex gap-6 items-center">
-                      {/* Box Foto Pembicara */}
-                      <div className="w-20 h-24 bg-gray-100 rounded-2xl overflow-hidden shrink-0 border border-gray-200 flex items-center justify-center">
-                        {imageUrl ? (
-                          <img 
-                            src={imageUrl} 
-                            alt={speakerName} 
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              // Jika link mati/rusak, muncul text No Photo yang rapi
-                              (e.target as HTMLImageElement).style.display = 'none';
-                              const parent = (e.target as HTMLImageElement).parentElement;
-                              if (parent) parent.innerHTML = '<span class="text-xs text-gray-400 font-bold">No Photo</span>';
-                            }}
-                          />
-                        ) : (
-                          <span className="text-xs text-gray-400 font-bold">No Photo</span>
-                        )}
-                      </div>
 
-                      {/* Deskripsi Teks & Tombol Aksi */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-bold text-gray-800 truncate mb-0.5">{speakerName}</h3>
-                        <p className="text-xs font-semibold text-pink-700 bg-pink-50 inline-block px-2 py-0.5 rounded-md mb-4">
-                          {speaker.role || "Professional"}
-                        </p>
-
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => startEdit(speaker)}
-                            className="text-xs bg-blue-50 px-3 py-1.5 rounded-md text-blue-600 font-semibold hover:bg-blue-600 hover:text-white transition cursor-pointer"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(speaker.id)}
-                            className="text-xs bg-red-50 px-3 py-1.5 rounded-md text-red-600 font-semibold hover:bg-red-600 hover:text-white transition cursor-pointer"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 block mb-1">Role / Jabatan:</label>
+                      <input
+                        type="text"
+                        value={editRole}
+                        onChange={(e) => setEditRole(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-pink-500 text-gray-800"
+                        disabled={saveLoading}
+                      />
                     </div>
-                  )}
-                </div>
-              );
-            })
-          )}
+
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 block mb-1">URL Foto:</label>
+                      <input
+                        type="text"
+                        value={editFoto}
+                        onChange={(e) => setEditFoto(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-pink-500 text-gray-800"
+                        disabled={saveLoading}
+                      />
+                    </div>
+
+                    <div className="flex gap-2 pt-2 border-t border-gray-100">
+                      <button
+                        onClick={() => handleSaveEdit(pembicara.id)}
+                        disabled={saveLoading}
+                        className="flex-1 py-1.5 px-3 bg-green-700 text-white text-xs font-semibold rounded hover:bg-green-800 transition cursor-pointer disabled:bg-gray-300"
+                      >
+                        {saveLoading ? "..." : "Simpan"}
+                      </button>
+                      <button
+                        onClick={cancelEdit}
+                        disabled={saveLoading}
+                        className="flex-1 py-1.5 px-3 bg-gray-500 text-white text-xs font-semibold rounded hover:bg-gray-600 transition cursor-pointer disabled:bg-gray-300"
+                      >
+                        Batal
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* --- KONDISI NORMAL (MENAMPILKAN DATA) --- */
+                  <>
+                    <div className="flex flex-col items-center text-center mb-4">
+                      {/* Tampilan Foto dengan Fallback Gambar Rusak */}
+                      <img 
+                        src={pembicara.foto} 
+                        alt={pembicara.name}
+                        onError={(e) => {
+                          // Jika link gambar dari Supabase mati/salah, ganti otomatis ke gambar default
+                          (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&h=150&q=80";
+                        }}
+                        className="w-24 h-24 rounded-full object-cover shadow-inner border-2 border-gray-100 mb-3"
+                      />
+                      <h3 className="text-lg font-bold text-gray-800 line-clamp-1 break-all">{pembicara.name}</h3>
+                      <p className="text-xs font-semibold text-pink-600 tracking-wider uppercase mt-0.5">{pembicara.role}</p>
+                    </div>
+
+                    <div className="flex gap-2 border-t border-gray-100 pt-3">
+                      <button
+                        onClick={() => startEdit(pembicara)}
+                        className="flex-1 py-1.5 px-3 bg-blue-600 text-white text-xs font-semibold rounded hover:bg-blue-700 transition text-center cursor-pointer"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(pembicara.id)}
+                        className="flex-1 py-1.5 px-3 bg-red-600 text-white text-xs font-semibold rounded hover:bg-red-700 transition text-center cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

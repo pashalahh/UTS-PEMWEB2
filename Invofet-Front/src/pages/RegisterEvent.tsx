@@ -4,82 +4,71 @@ import { Textarea } from "../component/ui/TextArea";
 import { Select } from "../component/ui/Select"; 
 import Button from "../component/ui/Button";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {z} from "zod";
-
- 
-
-type FormData ={
-    nama: string;
-    email: string;
-    event: string;
-    bio: string;
-}
+import { z } from "zod";
 
 const schema = z.object({
-    nama: z.string().min(1, "Nama harus diisi"),
-    email: z.string().min(1, "Email harus diisi"),
-    event: z.string().min(1, "Pilih salah satu event"),
-    bio: z.string().min(1,"Biodata harus diisi"),
-})
+  nama: z.string().min(1, "Nama lengkap wajib diisi"),
+  email: z.string().min(1, "Email wajib diisi").email("Format email tidak valid"),
+  event: z.string().min(1, "Silakan pilih salah satu kompetisi/event"),
+  bio: z.string().min(10, "Biodata singkat minimal berisi 10 karakter"),
+});
 
-export default function RegisterForm() { 
-  const { 
-    register, 
-    handleSubmit, 
-    formState: { errors } 
-  } = useForm<FormData>({
+type FormData = z.infer<typeof schema>;
+
+export default function RegisterEventForm() { 
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema)
   }); 
  
   const onSubmit = (data: FormData) => { 
-    console.log("Data Pendaftaran:", data); 
-    alert("Pendaftaran Berhasil!");
+    console.log("Data Pendaftaran Event:", data); 
+    alert("Pendaftaran Event Berhasil!");
   };
  
   return (
-    <div className="w-full bg-white p-8 rounded-2xl shadow-xl border border-pink-800">
-      <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Registrasi Event</h2>
+    <div className="w-full bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-pink-800">
+      <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 tracking-wide">Registrasi Event</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4"> 
-        
         <InputText
-          label="Nama" 
+          label="Nama Lengkap" 
           nama="nama" 
-          register={register} 
+          register={register("nama")} 
           error={errors.nama?.message} 
+          placeholder="Masukkan nama lengkap"
         /> 
   
         <InputText
-          label="Email" 
+          label="Email Aktif" 
           nama="email" 
-          register={register} 
+          register={register("email")} 
           error={errors.email?.message} 
+          placeholder="nama@email.com"
         /> 
 
         <Select 
-          label="Pilih Event" 
+          label="Pilih Jenis Event" 
           nama="event" 
-          register={register} 
+          register={register("event")} 
           options={[ 
-            { label: "IT Competition", value: "comp" }, 
-            { label: "IT Seminar", value: "semi" }, 
-            { label: "IT Talkshow", value: "talk" }, 
-            { label: "IT Workshop", value: "work" } 
+            { label: "IT Competition (Lomba)", value: "comp" }, 
+            { label: "IT Seminar Nasional", value: "semi" }, 
+            { label: "IT Talkshow Interaktif", value: "talk" }, 
+            { label: "IT Workshop Praktikal", value: "work" } 
           ]} 
           error={errors.event?.message} 
         /> 
   
         <Textarea 
-          label="Biodata Singkat" 
+          label="Biodata Singkat Peserta" 
           nama="bio" 
-          register={register} 
+          register={register("bio")} 
           error={errors.bio?.message} 
+          placeholder="Jelaskan instansi atau motivasi singkat mengikuti event ini..."
         /> 
   
-  
-          <Button  label="Daftar" variant="primary" className="w-full mt-2" /> 
-
+        <Button label="Kirim Pendaftaran" variant="primary" type="submit" className="w-full mt-2" /> 
       </form> 
     </div>
   ); 
-} 
+}

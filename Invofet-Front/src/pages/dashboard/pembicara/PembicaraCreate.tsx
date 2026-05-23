@@ -8,13 +8,13 @@ import z from "zod";
 import api from "../../../api/axiosInstance";
 
 type FormData = {
-  nama: string;
+  name: string;
   role: string;
   image: string;
 };
 
 const schema = z.object({
-  nama: z.string().min(1, "Nama pembicara harus diisi"),
+  name: z.string().min(1, "Nama pembicara harus diisi"),
   role: z.string().min(1, "Role pembicara harus diisi"),
   image: z.string().min(1, "Foto pembicara harus diisi berupa URL gambar"),
 });
@@ -42,15 +42,13 @@ export default function PembicaraCreate() {
 
     const payload = {
       // Antisipasi kolom Nama
-      name: data.nama,  
-      nama: data.nama, 
+      name: data.name,  
 
       // Antisipasi kolom Role
       role: data.role,
 
       // Antisipasi kolom Foto/Gambar
-      image: data.image, 
-      foto: data.image,  
+      image: data.image,  
     };
 
     // Cetak di console inspect browser untuk memastikan data tidak kosong sebelum dikirim
@@ -77,9 +75,9 @@ export default function PembicaraCreate() {
         
         <InputText 
           label="Nama Lengkap" 
-          nama="nama" 
+          nama="name" 
           register={register}
-          error={errors.nama?.message}
+          error={errors.name?.message}
         />
 
         {/* Input Role */}
@@ -98,7 +96,7 @@ export default function PembicaraCreate() {
           error={errors.image?.message}
         />
 
-        {/* 📸 Live Preview Foto Box */}
+        {/* Live Preview Foto Box */}
         <div className="mt-2 p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center gap-4">
           <div className="w-16 h-20 bg-gray-200 rounded-lg overflow-hidden shrink-0 flex items-center justify-center border border-gray-200">
             <img 
