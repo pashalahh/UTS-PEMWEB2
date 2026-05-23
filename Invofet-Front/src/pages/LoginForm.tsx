@@ -8,7 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/UseAuthStore";
 
 const schema = z.object({
-  email: z.string().min(1, "Email : 24090070").email("Format email tidak valid"),
+  email: z.string().min(1, "Email : 24090070"),
   password: z.string().min(8, "Password : 24090070"),
 });
 
@@ -44,7 +44,7 @@ export default function LoginForm() {
           nama="email"
           register={register}
           error={errors.email?.message}
-          placeholder="contoh@student.ac.id"
+          placeholder="Masukkan Email Anda"
         />
 
         <InputPassword 
