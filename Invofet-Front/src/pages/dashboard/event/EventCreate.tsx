@@ -183,9 +183,10 @@ export default function EventCreate() {
           {/* Tombol Simpan */}
           <div className="pt-2">
             <Button 
-              label={isSubmitting ? "Menyimpan..." : "Simpan Event"} 
+              type="submit" // <-- WAJIB DITAMBAHKAN AGAR FORM BISA DI-SUBMIT 
+              label={isSubmitting ? "Menyimpan..." : "Simpan"} 
               variant="primary" 
-              className="w-full mt-2 cursor-pointer disabled:bg-gray-400" 
+              className="flex-1 mt-0 cursor-pointer disabled:bg-gray-400" 
               disabled={isSubmitting}
             />
           </div>

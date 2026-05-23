@@ -9,7 +9,7 @@ import { useState } from "react";
 
 export default function CategoryCreate() {
     const navigate = useNavigate(); // Inisialisasi fungsi navigate
-    const [loading, setLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [serverError, setServerError] = useState<string | null>(null);
 
     type FormData = {
@@ -22,7 +22,7 @@ export default function CategoryCreate() {
     
     // 3. Ubah fungsi onsubmit menjadi async-await untuk handle Axios POST
     const onsubmit = async (data: FormData) => {
-        setLoading(true);
+        setIsSubmitting(true);
         setServerError(null);
 
         try {
@@ -39,7 +39,7 @@ export default function CategoryCreate() {
                 error.response?.data?.message || "Terjadi kesalahan pada server. Coba lagi."
             );
         } finally {
-            setLoading(false);
+            setIsSubmitting(false);
         }
     };
     
@@ -68,10 +68,11 @@ export default function CategoryCreate() {
 
                 <div className="mt-4">
                     <Button 
-                        label={loading ? "Menyimpan..." : "Simpan"} 
+                        type="submit" // <-- WAJIB DITAMBAHKAN AGAR FORM BISA DI-SUBMIT 
+                        label={isSubmitting ? "Menyimpan..." : "Simpan"} 
                         variant="primary" 
-                        className="w-full mt-2" 
-                        disabled={loading} // Cegah user klik double saat loading
+                        className="flex-1 mt-0 cursor-pointer disabled:bg-gray-400" 
+                        disabled={isSubmitting}
                     />
                 </div>
             </form>

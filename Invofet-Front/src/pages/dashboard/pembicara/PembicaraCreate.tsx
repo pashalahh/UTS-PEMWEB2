@@ -126,6 +126,7 @@ export default function PembicaraCreate() {
             Batal
           </button>
           <Button 
+            type="submit" // <-- WAJIB DITAMBAHKAN AGAR FORM BISA DI-SUBMIT 
             label={isSubmitting ? "Menyimpan..." : "Simpan"} 
             variant="primary" 
             className="flex-1 mt-0 cursor-pointer disabled:bg-gray-400" 
